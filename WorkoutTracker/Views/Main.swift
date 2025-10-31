@@ -10,7 +10,7 @@ import SwiftUI
 import Charts
 
 struct Main: View {
-    @StateObject private var viewModel = WorkoutTrackerViewModel()
+    @StateObject private var viewModel = WTFirebaseVM()
     @State private var selectedDate = Date()
     @State private var path = NavigationPath()
     
@@ -25,7 +25,7 @@ struct Main: View {
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                VStack(spacing: 24) {   
+                VStack(spacing: 24) {
                     // Hero Card with Date Picker
                     VStack(spacing: 16) {
                         HStack {
@@ -162,6 +162,22 @@ struct Main: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Workout Tracker")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        Button(role: .destructive, action: {
+                            Task {
+                                try? AuthService.shared.signOut()
+                            }
+                        }) {
+                            Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    } label: {
+                        Image(systemName: "person.circle")
+                            .font(.title3)
+                    }
+                }
+            }
             .navigationDestination(for: Date.self) { date in
                 AddActivity(date: date)
                     .environmentObject(viewModel)

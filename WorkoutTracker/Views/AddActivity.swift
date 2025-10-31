@@ -11,7 +11,7 @@ import SwiftUI
 struct AddActivity: View {
     let date: Date
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var viewModel: WorkoutTrackerViewModel
+    @EnvironmentObject var viewModel: WTFirebaseVM
     @FocusState private var isTextFieldFocused: Bool
     @State private var exercise = ""
     @State private var reps = 8
@@ -213,8 +213,7 @@ struct AddActivity: View {
                 Button(action: {
                     if let selectedExercise = exercises.first(where: { $0.name == exercise}) {
                         let activity = Activity(
-                            id: UUID(),
-                            name: selectedExercise,
+                            exerciseName: selectedExercise.name,
                             reps: reps,
                             sets: sets,
                             weight: weights,
@@ -276,7 +275,7 @@ struct AddActivity: View {
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(activity.name.name)
+                                    Text(activity.exerciseName)
                                         .font(.subheadline)
                                         .fontWeight(.medium)
                                     HStack(spacing: 12) {
@@ -330,9 +329,13 @@ struct AddActivity: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if listExists {
-                    Button("Finish") {
-                        viewModel.save()
-                        dismiss()
+                    Button("Finish") { // Button actions are synchronous closures () -> Void
+//                        viewModel.save() // save() is async, cant call from sync context directly
+//                        dismiss()
+                        Task { // Task {} creates a new async context where you can use await
+                            await viewModel.save()
+                            dismiss()
+                        }
                     }
                     .fontWeight(.semibold)
                 }
@@ -372,7 +375,7 @@ struct RoundedCorner: Shape {
 }
 
 #Preview {
-    let viewModel = WorkoutTrackerViewModel()
+    let viewModel = WTFirebaseVM()
     NavigationStack {
         AddActivity(date: Date())
             .environmentObject(viewModel)

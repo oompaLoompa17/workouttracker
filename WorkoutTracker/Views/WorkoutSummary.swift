@@ -87,13 +87,15 @@ struct WorkoutSummary: View {
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(activity.name.name)
+                                    Text(activity.exerciseName)
                                         .font(.headline)
                                     
                                     // Muscle groups
-                                    Text(activity.name.muscleGroups.map { $0.rawValue.capitalized }.joined(separator: ", "))
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                    if let exercise = activity.exercise {
+                                        Text(exercise.muscleGroups.map { $0.rawValue.capitalized }.joined(separator: ", "))
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                                 
                                 Spacer()
@@ -176,20 +178,17 @@ struct StatBadge: View {
 
 #Preview {
     let sampleWorkout = Workout(
-        id: UUID(),
         date: Date(),
         activities: [
             Activity(
-                id: UUID(),
-                name: exercises[1], // Bench Press
+                exerciseName: "Bench Press",
                 reps: 10,
                 sets: 3,
                 weight: 80,
                 intensity: 7
             ),
             Activity(
-                id: UUID(),
-                name: exercises[14], // Pull-Up
+                exerciseName: "Pull-Up",
                 reps: 8,
                 sets: 4,
                 weight: nil,
